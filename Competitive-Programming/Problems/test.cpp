@@ -34,53 +34,19 @@ typedef unsigned long long int  uint64;
 #endif
 
 
-vector<vector<int>> adj;
-vector<bool> visited;   // Visited array
-
-vector<int> component; // Break tree into components
-
-void dfs(int v) {
-    component.push_back(v);
-    visited[v] = true;  // Set current node as visited
-    for (int u : adj[v]) {  // Loop through all the neighbour, iterate to next one only if all depth has proceeded
-        if (!visited[u])    // If the neighbor is not visited (otherwise infinite loop)
-            dfs(u); // Call dfs on the neighbours
-    }
-}
-
 void solve() {
-    int n, m;
-    cin >> n >> m;
-    adj.resize(n+1);
-    visited.resize(n+1);
-    for (int i = 0; i < m; i++){
-        int u, v; cin >> u >> v;
-        adj[u].push_back(v);
-    }
 
-    map<int, int> ans;
 
-    for(int i = 1 ; i <= n; i++){
-        component.clear();
-        if (!visited[i]) dfs(i);
-        sort(component.rbegin(), component.rend());
-        // Do dfs on subcomponents
-        // the first pair found would be the max pair for this set
-        // push in to ans
-
-        ans[max2] = max1;
-    }
-
-    if (ans.empty())
-        cout << -1 << endl;
-    else
-        cout << ans.rbegin() -> first << " " << ans.rbegin() -> second << endl;
+    
 }
+
 
 int main() {
     ios_base::sync_with_stdio(false);
     cin.tie(nullptr);
-
+    for (int i = 0; i < 1; i++) {
+        solve();
+    }
     
     return 0;
 }
