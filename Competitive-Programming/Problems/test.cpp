@@ -34,19 +34,80 @@ typedef unsigned long long int  uint64;
 #endif
 
 
-void solve() {
+vector<vector<int>> adj;
+vector<vector<int>> reversed_adj;
+vector<bool> visited;   // Visited array
+vector<bool> sub_visited;
+vector<int> component; // Break tree into components
+int max_x = -1, max_y = -1;
 
-
-    
+void dfs(int v) {
+    component.push_back(v);
+    visited[v] = true;  // Set current node as visited
+    for (int u : adj[v]) {  // Loop through all the neighbour, iterate to next one only if all depth has proceeded
+        if (!visited[u])    // If the neighbor is not visited (otherwise infinite loop)
+            dfs(u); // Call dfs on the neighbours
+    }
 }
 
+void rev_dfs(int v) {
+    sub_visited[v] = true;  // Set current node as visited
+    for (int u : reversed_adj[v]) {  // Loop through all the neighbour, iterate to next one only if all depth has proceeded
+        if (!sub_visited[u])    // If the neighbor is not visited (otherwise infinite loop)
+            rev_dfs(u); // Call dfs on the neighbours
+    }
+}
+
+void solve() {
+    int n, m;
+    cin >> n >> m;
+
+    adj.resize(n+1, vector<int>(n+1));
+    reversed_adj.resize(n+1, vector<int>(n+1));
+    sub_visited.resize(n+1);
+    visited.resize(n+1);
+
+    for (int i = 0; i < m; i++){
+        int u, v; cin >> u >> v;
+        adj[u].push_back(v);
+        reversed_adj[v].push_back(u);
+    }
+
+
+    for(int i = 1 ; i <= n; i++){
+        component.clear();
+        if (!visited[i]) dfs(i);
+        sort(component.rbegin(), component.rend());
+        if (component.empty()) continue;
+        for (auto u: component){
+            fill(sub_visited.begin(), sub_visited.end(), false);
+            rev_dfs(u);
+            vector<int> reached;
+            for (int k = 1; k <= n; k++){
+                if (sub_visited[k]) reached.push_back(k);
+            }
+            if (reached.size() > 1) {
+                int y = u, x = -1;
+                for (auto k: reached)
+                    if (k != u){
+                        x = max(x, k);
+                    }
+                if (x > max_x)
+                    max_x = x, max_y = y;
+                break;
+            }
+        }
+    }
+
+    cout << min(max_x, max_y) << " " << max(max_x, max_y) << endl;
+}
 
 int main() {
     ios_base::sync_with_stdio(false);
     cin.tie(nullptr);
-    for (int i = 0; i < 1; i++) {
+
+    for (int i = 0; i < 1; i++)
         solve();
-    }
-    
+
     return 0;
 }

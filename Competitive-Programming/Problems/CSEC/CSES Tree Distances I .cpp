@@ -28,7 +28,7 @@ typedef long long int int64;
 typedef unsigned long long int  uint64;
 
 // Comment this out to not use DEBUG_MODE
-#define DEBUG_MODE
+//#define DEBUG_MODE
 #ifdef DEBUG_MODE
     ifstream DEBUG_IN("input.txt");
     #define cin DEBUG_IN
@@ -37,6 +37,9 @@ typedef unsigned long long int  uint64;
 
 vector<vector<int>> adj;
 vector<int> steps;
+int end_node1 = -1, end_node2 = -1;
+vector<int> steps_from_end_node1;
+vector<int> steps_from_end_node2;
 
 void dfs(int v, int p){
     if (p == -1) steps[v] = 0;
@@ -47,26 +50,65 @@ void dfs(int v, int p){
     }
 }
 
+void dfs1(int v, int p){
+    if (p == -1) steps_from_end_node1[v] = 0;
+    else steps_from_end_node1[v] = steps_from_end_node1[p] + 1;
+    for(int u : adj[v]){  // Iterate through neighbours
+        if (u == p) continue;  // if neighbour node is parent, skip
+        dfs1(u, v);  // proceed to next level depth
+    }
+}
+
+void dfs2(int v, int p){
+    if (p == -1) steps_from_end_node2[v] = 0;
+    else steps_from_end_node2[v] = steps_from_end_node2[p] + 1;
+    for(int u : adj[v]){  // Iterate through neighbours
+        if (u == p) continue;  // if neighbour node is parent, skip
+        dfs2(u, v);  // proceed to next level depth
+    }
+}
+
 void solve() {
-    cout << "Solving" << endl;
-    int n; cin >> n;
+    int n;
+    cin >> n;
     adj.resize(n + 1);
-    for (int i = 0; i < n - 1; i++){
-        int u, v; cin >> u >> v;
+    for (int i = 0; i < n - 1; i++) {
+        int u, v;
+        cin >> u >> v;
         adj[u].push_back(v);
         adj[v].push_back(u);
     }
 
+    steps.resize(n + 1);
+    dfs(1, -1);
+    int largest_step = -1;
     for (int i = 1; i <= n; i++){
-        steps.resize(n+1, 0);
-        dfs(i, -1);
-        int ans = -1;
-        for (auto j: steps) ans = max(ans, j);
-        cout << ans << ' ';
+        if (steps[i] > largest_step){
+            largest_step = steps[i];
+            end_node1 = i;
+        }
+    }
+
+    fill(steps.begin(), steps.end(), 0);
+    dfs(end_node1, -1);
+    largest_step = -1;
+    for (int i = 1; i <= n; i++){
+        if (steps[i] > largest_step){
+            largest_step = steps[i];
+            end_node2 = i;
+        }
+    }
+
+    steps_from_end_node1.resize(n+1);
+    steps_from_end_node2.resize(n+1);
+    dfs1(end_node1, -1);
+    dfs2(end_node2, -1);
+
+    for(int i = 1; i <= n; i++){
+        cout << max(steps_from_end_node1[i], steps_from_end_node2[i]) << " ";
     }
     cout << endl;
 
-    
 }
 
 

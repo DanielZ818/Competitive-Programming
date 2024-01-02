@@ -1,8 +1,3 @@
-// DFS find components of graph
-// Find which nodes are connected
-// CPC '21 Contest 1 P4 - AQT and Directed Graph
-// https://dmoj.ca/problem/cpc21c1p4
-
 #include <bits/stdc++.h>
 using namespace std;
 
@@ -14,7 +9,7 @@ using namespace std;
 #define FOREACH(var, where) for (auto var = where.begin(); var != where.end(); var++)
 #define MP make_pair
 #define PB push_back
-#define INF (int)1e9
+#define INF (long long)1e15
 #define PI 3.1415926535897932384626433832795
 #define MOD 1000000007
 #define endl '\n'
@@ -39,46 +34,47 @@ typedef unsigned long long int  uint64;
     #define cin DEBUG_IN
 #endif
 
-vector<vector<int>> adj;
-vector<bool> visited;   // Visited array
-vector<int> best;
 
+vector<vector<pair<long long, long long>>>adj;
+vector<long long> dis;
 
-void dfs(int v, int par) {
-    visited[v] = true;  // Set current node as visited
-    for (int u : adj[v]) {  // Loop through all the neighbour, iterate to next one only if all depth has proceeded
-        if (best[u] != -1 or visited[u])  continue;
-        if (u < par)
-            best[u] = par;
-        dfs(u, par);
+void dijkstra(int start) {
+    dis.assign(dis.size(), INF);
+    dis[start] = 0;
+    set<pair<long long, long long>> priority_queue;
+    priority_queue.insert({0, start});
+
+    while (!priority_queue.empty()){
+        long long cur = priority_queue.begin()->second;
+        priority_queue.erase(priority_queue.begin());
+
+        for (auto edge: adj[cur]) {
+            long long to = edge.first;
+            long long cost = edge.second;
+
+            if (dis[cur] + cost < dis[to]) {
+                priority_queue.erase({dis[to], to});
+                dis[to] = dis[cur] + cost;
+                priority_queue.insert({dis[to], to});
+            }
+        }
     }
 }
 
+
 void solve() {
-    int n, m;
-    cin >> n >> m;
-    adj.resize(n + 1);
-    visited.resize(n + 1);
-    best.resize(n + 1, -1);
-    for (int i = 0; i < m; i++){
-        int u, v; cin >> u >> v;
-        adj[v].push_back(u);
+    long long n, m; cin >> n >> m;
+    adj.resize(n+1);
+    dis.resize(n+1);
+
+    for (long long i = 1; i <= m; i++) {
+        long long u , v , w; cin >> u >> v >> w;
+        adj[u].push_back({v, w});
     }
-
-    for (int i = n; i >= 1; i--){
-        dfs(i, i);
-    }
-
-    PII ans = {-1, -1};
-    for(int i = 1; i <= n; i++)
-        if (best[i] != -1) ans = max(ans, {i, best[i]});
-    if (ans == make_pair(-1, -1)) {
-        cout << -1 << endl;
-        return;
-    }
-
-    cout << ans.first << " " << ans.second << endl;
-
+    dijkstra(1);
+    for (long long i = 1; i <= n; i++)
+        cout << dis[i] << ' ';
+    cout << endl;
 }
 
 
